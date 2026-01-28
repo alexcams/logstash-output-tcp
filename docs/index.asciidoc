@@ -28,6 +28,20 @@ By default this plugin uses the `json` codec. In order to have each event json s
 Can either accept connections from clients or connect to a server,
 depending on `mode`.
 
+[id="plugins-{type}s-{plugin}-concurrency"]
+===== Concurrency and Performance Characteristics
+
+This plugin uses a **single concurrency model**, meaning it processes events sequentially in a single thread. 
+The Logstash `workers` setting has no effect on this plugin's throughput. To increase TCP output capacity, 
+consider deploying multiple Logstash instances or using a different output plugin.
+
+**No batching**: This plugin does not batch events. Each event is sent individually to the TCP socket as it 
+is received, which may impact throughput for high-volume scenarios.
+
+**Delivery guarantees**: TCP provides at-most-once delivery semantics. If the connection is lost or 
+the remote endpoint is unavailable, events may be lost without retry. For guaranteed delivery, 
+consider using a message queue or a plugin with built-in retry mechanisms.
+
 [id="plugins-{type}s-{plugin}-options"]
 ==== Tcp Output Configuration Options
 
