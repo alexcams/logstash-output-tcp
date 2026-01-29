@@ -32,11 +32,15 @@ depending on `mode`.
 ===== Concurrency and Performance Characteristics
 
 **Single-threaded operation**: This plugin processes events sequentially in a single thread. 
-The Logstash `workers` setting has no effect on this plugin's throughput. To increase TCP output capacity, 
-consider deploying multiple Logstash instances or using a different output plugin.
+The Logstash `workers` setting has no effect on this plugin's throughput. However, because the plugin 
+uses non-blocking I/O, it can still achieve throughput of several thousand events per second as long as 
+the receiving end consumes data fast enough. To increase TCP output capacity beyond a single instance's 
+limit, consider deploying multiple Logstash instances.
 
 **No batching**: This plugin does not batch events. Each event is sent individually to the TCP socket as it 
-is received, which may impact throughput for high-volume scenarios.
+is received. Unlike synchronous protocols such as HTTP (which requires a full round-trip per event when 
+batching is disabled), TCP's streaming nature with non-blocking writes allows for efficient event delivery 
+without explicit batching.
 
 **Delivery guarantees**: In `client` mode, the plugin automatically retries failed writes and connection 
 attempts indefinitely. However, events may be lost if Logstash is terminated while retrying. In `server` 
